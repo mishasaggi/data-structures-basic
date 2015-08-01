@@ -1,5 +1,6 @@
-var HashTable = function(){
-  this._limit = 8;
+var HashTable = function(newLimit){
+  if (newLimit) this._limit = newLimit;
+  else this._limit = 8;
   this._storage = LimitedArray(this._limit);
 
 };
@@ -14,7 +15,40 @@ HashTable.prototype.insert = function(k, v){
     temp.push([k,v]);
     this._storage.set(i,temp);
   }
+  this.checkTable();
+};
 
+HashTable.prototype.checkTable = function() {
+  console.log("Checking Table....");
+  var counter = 0;
+  for(var j=0; j<this._limit; j++){
+    if(this._storage.get(j)){
+      counter++
+    }
+  }
+  console.log("Counter: " + counter);
+  if(counter >= this._limit * 0.50){
+    this.expandTable();
+  }
+};
+
+HashTable.prototype.expandTable = function() {
+  console.log("Expanding Table...");
+  var tempTable = new HashTable(this._limit * 2);
+  for(var j=0; j<this._limit; j++){
+    var bucket = this._storage.get(j);
+    console.log("Current bucket: " + bucket);
+    if(bucket){
+      for(var k=0; k<bucket.length; k++){
+        console.log("Current key/value pair: " + bucket[k][0] + ", " + bucket[k][1]);
+        tempTable.insert(bucket[k][0], bucket[k][1]);
+      }
+    }
+  }
+  var oldTable = this;
+  console.log("old:"+oldTable);
+  oldTable = tempTable;
+  console.log("new expanded table:"+oldTable);
 };
 
 HashTable.prototype.retrieve = function(k){
@@ -40,7 +74,6 @@ HashTable.prototype.remove = function(k){
       }
     }
   });
-
 };
 
 
